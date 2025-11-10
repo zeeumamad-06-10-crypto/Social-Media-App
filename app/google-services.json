@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "118688967803",
+    "project_id": "social-midia-app-a0973",
+    "storage_bucket": "social-midia-app-a0973.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:118688967803:android:623509c0d70f701e4786de",
+        "android_client_info": {
+          "package_name": "com.example.socialmidiaapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA019DhH3qmjzqd8QxcyItarI95L6pjbHU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
