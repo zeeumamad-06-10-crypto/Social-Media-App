@@ -2,66 +2,60 @@ package com.example.socialmidiaapp.ui.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
-import com.example.socialmidiaapp.data.local.AppDatabase
-import com.example.socialmidiaapp.data.remote.FirebaseStorageManager
+import com.example.socialmidiaapp.data.local.FileEntity
+import com.example.socialmidiaapp.ui.components.FileCard
+import com.example.socialmidiaapp.viewmodel.DownloadState
 import com.example.socialmidiaapp.viewmodel.FileViewModel
-import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DownloadScreen(navController: NavController) {
-    val context = androidx.compose.ui.platform.LocalContext.current
-    val db = AppDatabase.getDatabase(context)
-    val dao = db.fileDao()
-    val storageManager = FirebaseStorageManager()
-    val viewModel = FileViewModel(dao, storageManager)
-    val coroutineScope = rememberCoroutineScope()
+fun DownloadScreen(fileViewModel: FileViewModel) {
+    val downloadState = fileViewModel.downloadState.collectAsState()
 
-    var fileList by remember { mutableStateOf(listOf<com.example.socialmidiaapp.data.local.FileEntity>()) }
-
-    LaunchedEffect(Unit) {
-        coroutineScope.launch {
-            viewModel.getAllFiles { files -> fileList = files }
-        }
-    }
-
-    Scaffold(
-        topBar = { TopAppBar(title = { Text("Download Files") }) },
-        content = { padding ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding)
-                    .padding(16.dp)
-            ) {
-                LazyColumn {
-                    items(fileList) { file ->
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 8.dp),
-                            elevation = CardDefaults.cardElevation(4.dp)
-                        ) {
-                            Column(modifier = Modifier.padding(16.dp)) {
-                                Text("Name: ${file.name}", style = MaterialTheme.typography.titleMedium)
-                                Text("URL: ${file.path}", style = MaterialTheme.typography.bodySmall)
-                            }
+    Box(modifier = Modifier.fillMaxSize()) {
+        when (val state = downloadState.value) {
+            is DownloadState.Idle -> {
+                Text(
+                    text = "No files available",
+                    modifier = Modifier.align(Alignment.Center)
+                )
+            }
+            is DownloadState.Loading -> {
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+            }
+            is DownloadState.Success -> {
+                val files: List<FileEntity> = state.files
+                if (files.isEmpty()) {
+                    Text(
+                        text = "No files uploaded yet",
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+                } else {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(files) { file ->
+                            FileCard(file)
                         }
                     }
                 }
-
-                Spacer(modifier = Modifier.height(16.dp))
-                TextButton(onClick = { navController.navigate("home") }) {
-                    Text("Back to Home")
-                }
+            }
+            is DownloadState.Error -> {
+                Text(
+                    text = "Error: ${state.message}",
+                    modifier = Modifier.align(Alignment.Center)
+                )
             }
         }
-    )
+    }
 }
-
-

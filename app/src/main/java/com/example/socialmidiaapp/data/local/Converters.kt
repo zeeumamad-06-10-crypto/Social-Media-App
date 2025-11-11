@@ -1,3 +1,6 @@
+package com.example.socialmidiaapp.data.local
+
+import androidx.room.TypeConverter
 import java.util.Date
 
 class Converters {

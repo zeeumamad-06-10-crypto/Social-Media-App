@@ -1,37 +1,31 @@
 package com.example.socialmidiaapp.ui.screens
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(navController: NavController) {
-    Scaffold(
-        topBar = { TopAppBar(title = { Text("Social Media App") }) },
-        content = { padding ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding)
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Button(
-                    onClick = { navController.navigate("upload") },
-                    modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
-                ) { Text("Upload File") }
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Button(onClick = { navController.navigate("upload") }) {
+                Text(text = "Upload Files")
+            }
 
-                Button(
-                    onClick = { navController.navigate("download") },
-                    modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
-                ) { Text("Download Files") }
+            Button(onClick = { navController.navigate("download") }) {
+                Text(text = "Download Files")
             }
         }
-    )
+    }
 }

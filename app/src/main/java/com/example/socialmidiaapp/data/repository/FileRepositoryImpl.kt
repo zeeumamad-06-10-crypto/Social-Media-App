@@ -10,20 +10,17 @@ class FileRepositoryImpl(
     private val storageManager: FirebaseStorageManager
 ) : FileRepository {
 
-    override fun uploadFile(
-        uri: Uri,
-        fileName: String,
-        onSuccess: (String) -> Unit,
-        onFailure: (Exception) -> Unit
-    ) {
-        storageManager.uploadFile(uri, fileName,
-            onSuccess = { url -> onSuccess(url) },
-            onFailure = { exception -> onFailure(exception) }
-        )
+    override suspend fun uploadFile(uri: Uri, fileName: String): String {
+        // Upload to Firebase Storage
+        val downloadUrl = storageManager.uploadFileAsync(uri, fileName)
+        // Save to Room
+        val entity = FileEntity(name = fileName, path = downloadUrl)
+        fileDao.insertFile(entity)
+        return downloadUrl
     }
 
-    override suspend fun insertFile(fileEntity: FileEntity) {
-        fileDao.insertFile(fileEntity)
+    override suspend fun insertFile(file: FileEntity) {
+        fileDao.insertFile(file)
     }
 
     override suspend fun getAllFiles(): List<FileEntity> {

@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.google.gms.google.services)
     id("com.google.devtools.ksp")
+
 }
 
 android {
@@ -64,27 +65,58 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 
-    // Firebase BOM (manages versions automatically)
-    // Import the Firebase BoM
+    // Firebase (using BoM for version management)
     implementation(platform("com.google.firebase:firebase-bom:34.5.0"))
 
-    // When using the BoM, you don't specify versions in Firebase library dependencies
-
-    // Add the dependency for the Firebase SDK for Google Analytics
+    // Firebase SDKs
     implementation("com.google.firebase:firebase-analytics")
-
-    // TODO: Add the dependencies for any other Firebase products you want to use
-    // See https://firebase.google.com/docs/android/setup#available-libraries
-    // For example, add the dependencies for Firebase Authentication and Cloud Firestore
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-firestore")
-    implementation(libs.firebase.database) // optional if using Realtime DB
 
-    // Room (with KSP)
-    implementation(libs.androidx.room.runtime)
-    implementation(libs.androidx.room.ktx)
-    ksp("androidx.room:room-compiler:2.6.0") // updated KSP version
+    // Firebase Storage
+    implementation("com.google.firebase:firebase-storage-ktx:20.3.0")
+    // Optional: Firebase Firestore / Realtime Database
+    implementation("com.google.firebase:firebase-firestore-ktx:24.5.0")
+    implementation(libs.firebase.database) // Optional: Realtime Database
 
+    // Room (KSP version)
+    val roomVersion = "2.8.3"
+
+
+
+    // Room Extensions
+    val room_version = "2.8.3"
+
+    implementation("androidx.room:room-runtime:$room_version")
+
+    // If this project uses any Kotlin source, use Kotlin Symbol Processing (KSP)
+    // See Add the KSP plugin to your project
+    ksp("androidx.room:room-compiler:$room_version")
+
+    // If this project only uses Java source, use the Java annotationProcessor
+    // No additional plugins are necessary
+    annotationProcessor("androidx.room:room-compiler:$room_version")
+
+    // optional - Kotlin Extensions and Coroutines support for Room
+    implementation("androidx.room:room-ktx:$room_version")
+
+    // optional - RxJava2 support for Room
+    implementation("androidx.room:room-rxjava2:$room_version")
+
+    // optional - RxJava3 support for Room
+    implementation("androidx.room:room-rxjava3:$room_version")
+
+    // optional - Guava support for Room, including Optional and ListenableFuture
+    implementation("androidx.room:room-guava:$room_version")
+
+    // optional - Test helpers
+    testImplementation("androidx.room:room-testing:$room_version")
+
+    // optional - Paging 3 Integration
+    implementation("androidx.room:room-paging:$room_version")
+
+    // Optional: if using TypeConverters for Date, etc.
+    implementation("androidx.room:room-common:2.6.1")
     // Coroutines
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.android)
@@ -92,10 +124,10 @@ dependencies {
     // Navigation (Compose)
     implementation(libs.androidx.navigation.compose)
 
-    // Image Loading
+    // Image Loading (Coil)
     implementation(libs.coil.kt.compose)
 
-    // Google Sign-In / Credentials
+    // Google Sign-In / Credential Manager
     implementation(libs.androidx.credentials)
     implementation(libs.androidx.credentials.play.services.auth)
     implementation(libs.googleid)
@@ -107,4 +139,5 @@ dependencies {
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
 }
+
 

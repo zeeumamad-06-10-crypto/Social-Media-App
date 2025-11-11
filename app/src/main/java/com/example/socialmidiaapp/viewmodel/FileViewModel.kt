@@ -5,12 +5,15 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.socialmidiaapp.data.local.FileDao
 import com.example.socialmidiaapp.data.local.FileEntity
-
 import com.example.socialmidiaapp.data.remote.FirebaseStorageManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import com.example.socialmidiaapp.viewmodel.UploadState
+
+
+import com.example.socialmidiaapp.viewmodel.DownloadState
 
 class FileViewModel(
     private val fileDao: FileDao,
@@ -23,27 +26,37 @@ class FileViewModel(
     private val _downloadState = MutableStateFlow<DownloadState>(DownloadState.Idle)
     val downloadState: StateFlow<DownloadState> = _downloadState
 
-    // Upload a file to Firebase Storage
+    /**
+     * Upload a file to Firebase Storage and save metadata to Room
+     */
     fun uploadFile(uri: Uri, fileName: String, onComplete: () -> Unit = {}) {
         _uploadState.value = UploadState.Uploading
 
-        storageManager.uploadFile(uri, fileName,
-            onSuccess = { url ->
-                viewModelScope.launch(Dispatchers.IO) {
-                    // Save file info in Room
-                    val entity = FileEntity(name = fileName, path = url)
-                    fileDao.insertFile(entity)
-                    _uploadState.value = UploadState.Success("File uploaded successfully!")
-                    onComplete()
-                }
-            },
-            onFailure = { exception ->
-                _uploadState.value = UploadState.Error(exception.message ?: "Upload failed")
+        // Using coroutine-friendly version
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val downloadUrl = storageManager.uploadFileAsync(uri, fileName)
+
+                // Save file info in Room
+                val entity = FileEntity(
+                    name = fileName,
+                    path = downloadUrl
+                )
+                fileDao.insertFile(entity)
+
+                // Update state on main thread
+                _uploadState.value = UploadState.Success("File uploaded successfully!")
+                onComplete()
+
+            } catch (e: Exception) {
+                _uploadState.value = UploadState.Error(e.message ?: "Upload failed")
             }
-        )
+        }
     }
 
-    // Fetch all files from Room
+    /**
+     * Fetch all files from Room database
+     */
     fun getAllFiles(onResult: (List<FileEntity>) -> Unit) {
         _downloadState.value = DownloadState.Loading
         viewModelScope.launch(Dispatchers.IO) {
